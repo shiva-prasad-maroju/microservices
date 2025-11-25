@@ -1,0 +1,52 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout code from your GitHub repository
+                git 'https://github.com/sarasrija/microservices.git'
+            }
+        }
+        stage('Build') {
+            steps {
+                // Build the Java project with Maven
+                sh 'mvn clean compile'
+            }
+        }
+        stage('Test') {
+            steps {
+                // Run unit tests
+                sh 'mvn test'
+            }
+        }
+        stage('Package') {
+            steps {
+                // Package the application (e.g., JAR/WAR)
+                sh 'mvn package'
+            }
+        }
+        stage('Publish Artifacts') {
+            steps {
+                // Optionally publish the build artifacts somewhere, e.g. Nexus, Artifactory
+                // Example (customize as needed):
+                // sh 'mvn deploy'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                // Deploy to your test or staging environment
+                // For example: sh './deploy-script.sh'
+            }
+        }
+    }
+    post {
+        always {
+            // Archive test results, notify etc.
+            junit '**/target/surefire-reports/*.xml'
+            mail to: 'team@example.com',
+                 subject: "Build Notification",
+                 body: "The build has completed."
+        }
+    }
+}
